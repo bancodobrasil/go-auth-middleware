@@ -53,7 +53,9 @@ func Authenticate(next http.Handler) http.Handler {
 			})
 		}
 
-		next.ServeHTTP(w, r)
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
 	})
 }
 
