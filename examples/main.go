@@ -3,9 +3,16 @@ package main
 import "os"
 
 func main() {
-	arg1 := os.Args[1]
+	if len(os.Args) < 2 {
+		panic("You must provide a framework name as an argument eg. gin or mux")
+	}
 
-	if arg1 == "gin" {
+	switch os.Args[1] {
+	case "gin":
 		RunGinExample()
+		break
+	case "mux":
+		RunMuxExample()
+		break
 	}
 }

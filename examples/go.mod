@@ -5,7 +5,10 @@ go 1.18
 require (
 	github.com/bancodobrasil/go-auth-middleware v0.0.1
 	github.com/gin-gonic/gin v1.8.1
+	github.com/gorilla/mux v1.8.0
 )
+
+replace github.com/bancodobrasil/go-auth-middleware => ../
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
