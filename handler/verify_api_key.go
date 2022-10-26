@@ -28,7 +28,7 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 }
 
 // Authenticate runs the authentication handler
-func (a *VerifyAPIKey) Authenticate(h *http.Header) (statusCode int, err error) {
+func (a *VerifyAPIKey) Handle(h *http.Header) (statusCode int, err error) {
 	key, statusCode, err := a.extractKeyFromHeader(h)
 	if err != nil {
 		return statusCode, err

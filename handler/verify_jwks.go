@@ -62,7 +62,7 @@ func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
 }
 
 // Authenticate runs the authentication handler
-func (m *VerifyJWKS) Authenticate(h *http.Header) (statusCode int, err error) {
+func (m *VerifyJWKS) Handle(h *http.Header) (statusCode int, err error) {
 	token, statusCode, err := m.extractTokenFromHeader(h)
 	if err != nil {
 		return statusCode, err

@@ -10,7 +10,7 @@ var h []AuthHandler = []AuthHandler{}
 // AuthHandler is the interface that wraps the AuthenticateFunc method
 // and is used to authenticate the request
 type AuthHandler interface {
-	Authenticate(h *http.Header) (statusCode int, err error)
+	Handle(h *http.Header) (statusCode int, err error)
 }
 
 // AuthMiddlewareError is the error type returned by the middleware
@@ -40,7 +40,7 @@ func Authenticate(next http.Handler) http.Handler {
 		var statusCode int
 
 		for _, handler := range h {
-			statusCode, err = handler.Authenticate(&r.Header)
+			statusCode, err = handler.Handle(&r.Header)
 			if err == nil {
 				return
 			}
