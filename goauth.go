@@ -51,6 +51,7 @@ func Authenticate(next http.Handler) http.Handler {
 				Code:    statusCode,
 				Message: err.Error(),
 			})
+			return
 		}
 
 		if next != nil {
@@ -64,6 +65,5 @@ func respondWithError(w http.ResponseWriter, err *AuthMiddlewareError) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(err.Code)
 	str := `{"error":"%s"}`
-	fmt.Fprintf(w, str, err.Message)
-	return
+	http.Error(w, fmt.Sprintf(str, err.Message), err.Code)
 }
