@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bancodobrasil/go-auth-middleware/log"
+	"github.com/bancodobrasil/goauth/log"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"

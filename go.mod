@@ -1,4 +1,4 @@
-module github.com/bancodobrasil/go-auth-middleware
+module github.com/bancodobrasil/goauth
 
 go 1.18
 

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	goauth "github.com/bancodobrasil/go-auth-middleware"
-	"github.com/bancodobrasil/go-auth-middleware/handler"
+	goauth "github.com/bancodobrasil/goauth"
+	"github.com/bancodobrasil/goauth/handler"
 	"github.com/gorilla/mux"
 )
 
