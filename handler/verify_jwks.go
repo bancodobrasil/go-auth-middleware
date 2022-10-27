@@ -14,6 +14,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
+// CacheConfig stores the configuration for the JWKS cache
 type CacheConfig struct {
 	// RefreshWindow is the time window before checking if the cache needs to be refreshed
 	RefreshWindow time.Duration
@@ -23,6 +24,7 @@ type CacheConfig struct {
 	Context context.Context
 }
 
+// VerifyJWKSConfig stores the configuration for the VerifyJWKS handler
 type VerifyJWKSConfig struct {
 	CacheConfig
 	// URL is the endpoint of the JWKS
@@ -61,7 +63,7 @@ func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
 	}
 }
 
-// Authenticate runs the authentication handler
+// Handle runs the VerifyJWKS authentication handler
 func (m *VerifyJWKS) Handle(h *http.Header) (statusCode int, err error) {
 	token, statusCode, err := m.extractTokenFromHeader(h)
 	if err != nil {

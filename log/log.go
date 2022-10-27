@@ -20,16 +20,19 @@ type Logger interface {
 
 var logger Logger
 
+// SetLogger sets the logger to be used by the package
 func SetLogger(l Logger) {
 	logger = l
 }
 
+// Log is called internally by the library to log messages
 func Log(level Level, args ...interface{}) {
 	if logger != nil {
 		logger.Log(level, args...)
 	}
 }
 
+// Logf is called internally by the library to log messages
 func Logf(level Level, format string, args ...interface{}) {
 	if logger != nil {
 		logger.Logf(level, format, args...)

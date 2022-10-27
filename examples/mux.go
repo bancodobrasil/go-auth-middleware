@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// RunMuxExample runs the example using Gorilla Mux
 func RunMuxExample() {
 	r := mux.NewRouter()
 	cfg := handler.VerifyAPIKeyConfig{

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RunGinExample runs the example using Gin
 func RunGinExample() {
 	r := gin.Default()
 	cfg := handler.VerifyAPIKeyConfig{

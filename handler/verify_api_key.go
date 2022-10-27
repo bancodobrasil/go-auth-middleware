@@ -27,7 +27,7 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 
 }
 
-// Authenticate runs the authentication handler
+// Handle runs the VerifyAPIKey authentication handler
 func (a *VerifyAPIKey) Handle(h *http.Header) (statusCode int, err error) {
 	key, statusCode, err := a.extractKeyFromHeader(h)
 	if err != nil {
@@ -44,7 +44,7 @@ func (a *VerifyAPIKey) Handle(h *http.Header) (statusCode int, err error) {
 func (a *VerifyAPIKey) extractKeyFromHeader(h *http.Header) (key string, statusCode int, err error) {
 	authorizationHeader := h.Get(a.header)
 	if authorizationHeader == "" {
-		return "", 401, errors.New(fmt.Sprintf("Missing %s Header", a.header))
+		return "", 401, fmt.Errorf("Missing %s Header", a.header)
 	}
 	return authorizationHeader, 0, nil
 }
