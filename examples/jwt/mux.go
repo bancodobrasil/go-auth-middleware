@@ -1,4 +1,4 @@
-package api_key
+package jwt
 
 import (
 	"net/http"
@@ -9,16 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ApiKeyMux runs the example using Gorilla Mux
-func ApiKeyMux(logger log.Logger) {
+// JwtMux runs the example using Gorilla Mux
+func JwtMux(logger log.Logger) {
+	// Example JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.keH6T3x1z7mmhKL1T3r9sQdAxxdzB6siemGMr_6ZOwU
 	log.SetLogger(logger)
 
-	cfg := handler.VerifyAPIKeyConfig{
-		Header: "X-API-Key",
-		Key:    "123456",
+	cfg := handler.VerifyJWTConfig{
+		SignatureKey: "123456",
 	}
 	h := []goauth.AuthHandler{
-		handler.NewVerifyAPIKey(cfg),
+		handler.NewVerifyJWT(cfg),
 	}
 	goauth.SetHandlers(h)
 

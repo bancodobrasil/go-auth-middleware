@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/bancodobrasil/goauth/examples/api_key"
+	"github.com/bancodobrasil/goauth/examples/jwt"
 )
 
 func main() {
@@ -29,6 +30,15 @@ func main() {
 			logger.Log(5, "Invalid framework name")
 		}
 		break
+	case "jwt":
+		if len(os.Args) < 3 {
+			logger.Log(5, "You must provide an argument with the name of the framework to use")
+		}
+		switch os.Args[2] {
+		case "mux":
+			jwt.JwtMux(logger)
+			break
+		}
 	default:
 		logger.Log(5, "Invalid example name")
 	}

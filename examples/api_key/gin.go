@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RunGinExample runs the example using Gin
+// ApiKeyGin runs the example using Gin
 func ApiKeyGin(logger log.Logger) {
 	log.SetLogger(logger)
 
