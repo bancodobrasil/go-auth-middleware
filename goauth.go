@@ -26,6 +26,11 @@ func (e *AuthMiddlewareError) Error() string {
 	return e.Message
 }
 
+// GetHandlers returns the authentication handlers
+func GetHandlers() []AuthHandler {
+	return h
+}
+
 // SetHandlers sets the authentication handlers
 func SetHandlers(handlers []AuthHandler) {
 	h = handlers
