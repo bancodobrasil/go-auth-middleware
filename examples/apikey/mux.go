@@ -1,4 +1,4 @@
-package api_key
+package apikey
 
 import (
 	"net/http"
@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ApiKeyMux runs the example using Gorilla Mux
-func ApiKeyMux(logger log.Logger) {
+// Mux runs the example using Gorilla Mux
+func Mux(logger log.Logger) {
 	log.SetLogger(logger)
 
 	cfg := handler.VerifyAPIKeyConfig{

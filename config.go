@@ -14,12 +14,12 @@ type Config struct {
 	// AuthHandlers is the list of authentication handlers to be used
 	Handlers string `mapstructure:"GOAUTH_HANDLERS"`
 
-	// ApiKey is the API key to be used on the VerifyAPIKey handler
-	ApiKey       string `mapstructure:"GOAUTH_API_KEY"`
-	ApiKeyHeader string `mapstructure:"GOAUTH_API_KEY_HEADER"`
+	// APIKey is the API key to be used on the VerifyAPIKey handler
+	APIKey       string `mapstructure:"GOAUTH_API_KEY"`
+	APIKeyHeader string `mapstructure:"GOAUTH_API_KEY_HEADER"`
 
-	// JwksUrl is the JWKS endpoint to be used on the VerifyJWKS handler
-	JwksUrl string `mapstructure:"GOAUTH_JWKS_URL"`
+	// JwksURL is the JWKS endpoint to be used on the VerifyJWKS handler
+	JwksURL string `mapstructure:"GOAUTH_JWKS_URL"`
 	// JwksRefreshWindow is the time window before checking if the JWKS cache needs to be refreshed
 	JwksRefreshWindow int `mapstructure:"GOAUTH_JWKS_REFRESH_WINDOW"`
 	// JwksMinRefreshInterval is the minimum interval between JWKS refreshes
@@ -59,21 +59,21 @@ func BootstrapMiddleware() {
 	for _, h := range authHandlers {
 		switch strings.ToLower(h) {
 		case "api_key":
-			if config.ApiKey == "" {
+			if config.APIKey == "" {
 				panic("GOAUTH_API_KEY is required when using the API Key handler")
 			}
 			cfg := handler.VerifyAPIKeyConfig{
-				Header: config.ApiKeyHeader,
-				Key:    config.ApiKey,
+				Header: config.APIKeyHeader,
+				Key:    config.APIKey,
 			}
 			handlers = append(handlers, handler.NewVerifyAPIKey(cfg))
 			log.Log(1, "Using API Key authentication")
 		case "jwks":
-			if config.JwksUrl == "" {
+			if config.JwksURL == "" {
 				panic("GOAUTH_JWKS_URL is required when using the JWKS handler")
 			}
 			cfg := handler.VerifyJWKSConfig{
-				URL:         config.JwksUrl,
+				URL:         config.JwksURL,
 				CacheConfig: handler.CacheConfig{RefreshWindow: time.Duration(config.JwksRefreshWindow), MinRefreshInterval: time.Duration(config.JwksMinRefreshInterval)},
 			}
 			handlers = append(handlers, handler.NewVerifyJWKS(cfg))

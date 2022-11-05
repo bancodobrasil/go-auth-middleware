@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/bancodobrasil/goauth/examples/api_key"
+	"github.com/bancodobrasil/goauth/examples/apikey"
 	"github.com/bancodobrasil/goauth/examples/jwt"
 )
 
@@ -15,16 +15,18 @@ func main() {
 	}
 
 	switch os.Args[1] {
+	case "apikey":
 	case "api_key":
+	case "api-key":
 		if len(os.Args) < 3 {
 			logger.Log(5, "You must provide an argument with the name of the framework to use")
 		}
 		switch os.Args[2] {
 		case "gin":
-			api_key.ApiKeyGin(logger)
+			apikey.Gin(logger)
 			break
 		case "mux":
-			api_key.ApiKeyMux(logger)
+			apikey.Mux(logger)
 			break
 		default:
 			logger.Log(5, "Invalid framework name")
@@ -36,7 +38,7 @@ func main() {
 		}
 		switch os.Args[2] {
 		case "mux":
-			jwt.JwtMux(logger)
+			jwt.Mux(logger)
 			break
 		}
 	default:

@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// JwtMux runs the example using Gorilla Mux
-func JwtMux(logger log.Logger) {
+// Mux runs the example using Gorilla Mux
+func Mux(logger log.Logger) {
 	// Example JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.keH6T3x1z7mmhKL1T3r9sQdAxxdzB6siemGMr_6ZOwU
 	log.SetLogger(logger)
 

@@ -1,4 +1,4 @@
-package api_key
+package apikey
 
 import (
 	"github.com/bancodobrasil/goauth"
@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ApiKeyGin runs the example using Gin
-func ApiKeyGin(logger log.Logger) {
+// Gin runs the example using Gin
+func Gin(logger log.Logger) {
 	log.SetLogger(logger)
 
 	cfg := handler.VerifyAPIKeyConfig{

@@ -7,9 +7,11 @@ import (
 	"github.com/bancodobrasil/goauth/log"
 )
 
+// Logger is a simple logger that prints to stdout
 type Logger struct {
 }
 
+// Log prints a line to stdout
 func (l *Logger) Log(level log.Level, args ...interface{}) {
 	switch level {
 	case 0:
@@ -30,6 +32,7 @@ func (l *Logger) Log(level log.Level, args ...interface{}) {
 	}
 }
 
+// Logf prints a formatted line to stdout
 func (l *Logger) Logf(level log.Level, format string, args ...interface{}) {
 	switch level {
 	case 0:
