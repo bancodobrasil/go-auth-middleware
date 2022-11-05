@@ -42,6 +42,7 @@ type VerifyJWKS struct {
 
 // NewVerifyJWKS returns a new VerifyJWKS instance
 func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
+	log.Log(0, "VerifyJWKS: NewVerifyJWKS")
 	VerifyJWKS := &VerifyJWKS{
 		url:               cfg.URL,
 		ctx:               cfg.Context,
@@ -55,7 +56,6 @@ func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
 
 // setup sets up the signature key cache
 func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
-	log.Log(0, "Initializing VerifyJWKS")
 	m.signatureKeyCache.Register(m.url, jwk.WithMinRefreshInterval(cfg.MinRefreshInterval))
 	_, err := m.signatureKeyCache.Refresh(m.ctx, m.url)
 	if err != nil {
@@ -65,6 +65,7 @@ func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
 
 // Handle runs the VerifyJWKS authentication handler
 func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
+	log.Log(0, "VerifyJWKS: Handle")
 	token, statusCode, err := m.extractTokenFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err

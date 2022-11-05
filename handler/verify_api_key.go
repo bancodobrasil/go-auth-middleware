@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/bancodobrasil/goauth/log"
 )
 
 // VerifyAPIKeyConfig stores the configuration for the VerifyAPIKey handler
@@ -20,6 +22,7 @@ type VerifyAPIKey struct {
 
 // NewVerifyAPIKey returns a new VerifyAPIKey instance
 func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
+	log.Logf(0, "NewVerifyAPIKey: %v", cfg)
 	return &VerifyAPIKey{
 		header: cfg.Header,
 		key:    cfg.Key,
@@ -29,6 +32,7 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 
 // Handle runs the VerifyAPIKey authentication handler
 func (a *VerifyAPIKey) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
+	log.Log(0, "VerifyAPIKey: Handle")
 	key, statusCode, err := a.extractKeyFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err

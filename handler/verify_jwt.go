@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/bancodobrasil/goauth/log"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
@@ -23,6 +24,7 @@ type VerifyJWT struct {
 
 // NewVerifyJWT returns a new VerifyJWT instance
 func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
+	log.Log(0, "VerifyJWT: NewVerifyJWT")
 	VerifyJWT := &VerifyJWT{
 		signatureKey: cfg.SignatureKey,
 	}
@@ -32,6 +34,7 @@ func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 
 // Handle runs the VerifyJWT authentication handler
 func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
+	log.Log(0, "VerifyJWT: Handle")
 	token, statusCode, err := m.extractTokenFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err

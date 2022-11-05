@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/bancodobrasil/goauth/handler"
+	"github.com/bancodobrasil/goauth/log"
 	"github.com/spf13/viper"
 )
 
 // Config stores the configuration for the Goauth middleware
 type Config struct {
 	// AuthHandlers is the list of authentication handlers to be used
-	AuthHandlers string `mapstructure:"GOAUTH_AUTH_HANDLERS"`
+	Handlers string `mapstructure:"GOAUTH_HANDLERS"`
 
 	// ApiKey is the API key to be used on the VerifyAPIKey handler
 	ApiKey       string `mapstructure:"GOAUTH_API_KEY"`
@@ -34,7 +35,7 @@ var config = &Config{}
 func loadConfig() {
 	viper.AutomaticEnv()
 
-	viper.SetDefault("GOAUTH_AUTH_HANDLERS", "")
+	viper.SetDefault("GOAUTH_HANDLERS", "")
 	viper.SetDefault("GOAUTH_API_KEY", "")
 	viper.SetDefault("GOAUTH_API_KEY_HEADER", "X-API-Key")
 	viper.SetDefault("GOAUTH_JWKS_URL", "")
@@ -47,12 +48,14 @@ func loadConfig() {
 
 // BootstrapMiddleware sets up the authentication handlers
 func BootstrapMiddleware() {
+	log.Log(0, "BootstrapMiddleware")
 	loadConfig()
-	if config.AuthHandlers == "" {
+	if config.Handlers == "" {
 		return
 	}
-	authHandlers := strings.Split(config.AuthHandlers, ",")
-	handlers := make([]AuthHandler, len(authHandlers))
+	log.Logf(1, "Handlers: %s", config.Handlers)
+	authHandlers := strings.Split(config.Handlers, ",")
+	handlers := []AuthHandler{}
 	for _, h := range authHandlers {
 		switch strings.ToLower(h) {
 		case "api_key":
@@ -64,6 +67,7 @@ func BootstrapMiddleware() {
 				Key:    config.ApiKey,
 			}
 			handlers = append(handlers, handler.NewVerifyAPIKey(cfg))
+			log.Log(1, "Using API Key authentication")
 		case "jwks":
 			if config.JwksUrl == "" {
 				panic("GOAUTH_JWKS_URL is required when using the JWKS handler")
@@ -73,6 +77,7 @@ func BootstrapMiddleware() {
 				CacheConfig: handler.CacheConfig{RefreshWindow: time.Duration(config.JwksRefreshWindow), MinRefreshInterval: time.Duration(config.JwksMinRefreshInterval)},
 			}
 			handlers = append(handlers, handler.NewVerifyJWKS(cfg))
+			log.Log(1, "Using JWKS authentication")
 		case "jwt":
 			if config.JwtSignatureKey == "" {
 				panic("GOAUTH_JWT_SIGNATURE_KEY is required when using the JWT handler")
@@ -81,6 +86,7 @@ func BootstrapMiddleware() {
 				SignatureKey: config.JwtSignatureKey,
 			}
 			handlers = append(handlers, handler.NewVerifyJWT(cfg))
+			log.Log(1, "Using JWT authentication")
 		}
 	}
 	SetHandlers(handlers)
