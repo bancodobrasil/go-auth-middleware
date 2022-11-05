@@ -1,7 +1,8 @@
 package api_key
 
 import (
-	goauth "github.com/bancodobrasil/goauth"
+	"github.com/bancodobrasil/goauth"
+	goauthgin "github.com/bancodobrasil/goauth-gin"
 	"github.com/bancodobrasil/goauth/handler"
 	"github.com/bancodobrasil/goauth/log"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func ApiKeyGin(logger log.Logger) {
 	goauth.SetHandlers(h)
 
 	r := gin.Default()
-	r.Use(gin.WrapH(goauth.Authenticate(nil)))
+	r.Use(goauthgin.AuthenticateGin(nil))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
