@@ -27,6 +27,8 @@ type Config struct {
 
 	// JwtSignatureKey is the signature key to be used on the VerifyJWT handler
 	JwtSignatureKey string `mapstructure:"GOAUTH_JWT_SIGNATURE_KEY"`
+	// JwtPayloadContextKey is the context key to store the JWT payload
+	JwtPayloadContextKey string `mapstructure:"GOAUTH_JWT_PAYLOAD_CONTEXT_KEY"`
 }
 
 var config = &Config{}
@@ -42,6 +44,7 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
 	viper.SetDefault("GOAUTH_JWT_SIGNATURE_KEY", "")
+	viper.SetDefault("GOAUTH_JWT_PAYLOAD_CONTEXT_KEY", "JWT_PAYLOAD")
 
 	viper.Unmarshal(config)
 }

@@ -13,14 +13,19 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
+// JWTPayloadContextKey is the context key to store the JWT payload
+type JWTPayloadContextKey string
+
 // VerifyJWTConfig stores the configuration for the VerifyJWT handler
 type VerifyJWTConfig struct {
-	SignatureKey string
+	SignatureKey      string
+	PayloadContextKey JWTPayloadContextKey
 }
 
 // VerifyJWT stores the JWKS signature key
 type VerifyJWT struct {
-	signatureKey jwk.Key
+	signatureKey      jwk.Key
+	payloadContextKey JWTPayloadContextKey
 }
 
 // NewVerifyJWT returns a new VerifyJWT instance
@@ -32,7 +37,8 @@ func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 		return nil
 	}
 	VerifyJWT := &VerifyJWT{
-		signatureKey: key,
+		signatureKey:      key,
+		payloadContextKey: cfg.PayloadContextKey,
 	}
 
 	return VerifyJWT
@@ -65,7 +71,7 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	ctx := context.WithValue(r.Context(), "jwt", string(msg.Payload()))
+	ctx := context.WithValue(r.Context(), m.payloadContextKey, string(msg.Payload()))
 
 	return r.WithContext(ctx), 0, nil
 }
