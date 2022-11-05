@@ -9,6 +9,7 @@ import (
 
 	"github.com/bancodobrasil/goauth/log"
 	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
@@ -19,14 +20,19 @@ type VerifyJWTConfig struct {
 
 // VerifyJWT stores the JWKS signature key
 type VerifyJWT struct {
-	signatureKey string
+	signatureKey jwk.Key
 }
 
 // NewVerifyJWT returns a new VerifyJWT instance
 func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 	log.Log(0, "VerifyJWT: NewVerifyJWT")
+	key, err := jwk.FromRaw([]byte(cfg.SignatureKey))
+	if err != nil {
+		log.Log(5, err)
+		return nil
+	}
 	VerifyJWT := &VerifyJWT{
-		signatureKey: cfg.SignatureKey,
+		signatureKey: key,
 	}
 
 	return VerifyJWT
@@ -45,11 +51,13 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 
 	msg, internalErr := jws.Parse([]byte(token))
 	if internalErr != nil {
+		log.Log(3, internalErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.RS256, m.signatureKey))
+	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.HS256, m.signatureKey))
 	if internalErr != nil {
+		log.Log(3, internalErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 
