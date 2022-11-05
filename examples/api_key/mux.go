@@ -1,17 +1,18 @@
-package main
+package api_key
 
 import (
-	"log"
 	"net/http"
 
-	goauth "github.com/bancodobrasil/goauth"
+	"github.com/bancodobrasil/goauth"
 	"github.com/bancodobrasil/goauth/handler"
+	"github.com/bancodobrasil/goauth/log"
 	"github.com/gorilla/mux"
 )
 
 // RunMuxExample runs the example using Gorilla Mux
-func RunMuxExample() {
-	r := mux.NewRouter()
+func ApiKeyMux(logger log.Logger) {
+	log.SetLogger(logger)
+
 	cfg := handler.VerifyAPIKeyConfig{
 		Header: "X-API-Key",
 		Key:    "123456",
@@ -20,9 +21,14 @@ func RunMuxExample() {
 		handler.NewVerifyAPIKey(cfg),
 	}
 	goauth.SetHandlers(h)
+
+	r := mux.NewRouter()
 	r.Use(goauth.Authenticate)
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
-	log.Fatal(http.ListenAndServe(":8080", r))
+	err := http.ListenAndServe(":8080", r)
+	if err != nil {
+		panic(err)
+	}
 }

@@ -1,18 +1,35 @@
 package main
 
-import "os"
+import (
+	"os"
+
+	"github.com/bancodobrasil/goauth/examples/api_key"
+)
 
 func main() {
+	logger := &Logger{}
+
 	if len(os.Args) < 2 {
-		panic("You must provide a framework name as an argument eg. gin or mux")
+		logger.Log(5, "You must provide an argument with the example to run")
 	}
 
 	switch os.Args[1] {
-	case "gin":
-		RunGinExample()
+	case "api_key":
+		if len(os.Args) < 3 {
+			logger.Log(5, "You must provide an argument with the name of the framework to use")
+		}
+		switch os.Args[2] {
+		case "gin":
+			api_key.ApiKeyGin(logger)
+			break
+		case "mux":
+			api_key.ApiKeyMux(logger)
+			break
+		default:
+			logger.Log(5, "Invalid framework name")
+		}
 		break
-	case "mux":
-		RunMuxExample()
-		break
+	default:
+		logger.Log(5, "Invalid example name")
 	}
 }
