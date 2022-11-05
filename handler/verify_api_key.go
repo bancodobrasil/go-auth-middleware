@@ -28,17 +28,17 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 }
 
 // Handle runs the VerifyAPIKey authentication handler
-func (a *VerifyAPIKey) Handle(h *http.Header) (statusCode int, err error) {
-	key, statusCode, err := a.extractKeyFromHeader(h)
+func (a *VerifyAPIKey) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
+	key, statusCode, err := a.extractKeyFromHeader(&r.Header)
 	if err != nil {
-		return statusCode, err
+		return r, statusCode, err
 	}
 
 	if key != a.key {
-		return 401, errors.New("Unauthorized")
+		return r, 401, errors.New("Unauthorized")
 	}
 
-	return 0, nil
+	return r, 0, nil
 }
 
 func (a *VerifyAPIKey) extractKeyFromHeader(h *http.Header) (key string, statusCode int, err error) {

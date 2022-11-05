@@ -64,10 +64,10 @@ func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
 }
 
 // Handle runs the VerifyJWKS authentication handler
-func (m *VerifyJWKS) Handle(h *http.Header) (statusCode int, err error) {
-	token, statusCode, err := m.extractTokenFromHeader(h)
+func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
+	token, statusCode, err := m.extractTokenFromHeader(&r.Header)
 	if err != nil {
-		return statusCode, err
+		return r, statusCode, err
 	}
 
 	invalidJWTError := errors.New("Invalid JWT token")
@@ -75,24 +75,24 @@ func (m *VerifyJWKS) Handle(h *http.Header) (statusCode int, err error) {
 
 	msg, internalErr := jws.Parse([]byte(token))
 	if internalErr != nil {
-		return defaultStatusCode, invalidJWTError
+		return r, defaultStatusCode, invalidJWTError
 	}
 
 	key, statusCode, err := m.getSignatureKey()
 	if err != nil {
-		return statusCode, err
+		return r, statusCode, err
 	}
 
 	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.RS256, key))
 	if internalErr != nil {
-		return defaultStatusCode, invalidJWTError
+		return r, defaultStatusCode, invalidJWTError
 	}
 
 	if !bytes.Equal(verified, msg.Payload()) {
-		return defaultStatusCode, invalidJWTError
+		return r, defaultStatusCode, invalidJWTError
 	}
 
-	return 0, nil
+	return r, 0, nil
 }
 
 func (m *VerifyJWKS) extractTokenFromHeader(h *http.Header) (string, int, error) {
