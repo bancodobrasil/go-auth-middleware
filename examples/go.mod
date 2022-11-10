@@ -3,8 +3,8 @@ module github.com/bancodobrasil/goauth/examples
 go 1.18
 
 require (
-	github.com/bancodobrasil/goauth v0.0.1
-	github.com/bancodobrasil/goauth-gin v0.0.1
+	github.com/bancodobrasil/goauth v1.0.1-rc1
+	github.com/bancodobrasil/goauth-gin v0.0.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gorilla/mux v1.8.0
 )
