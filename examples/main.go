@@ -15,9 +15,7 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "apikey":
-	case "api_key":
-	case "api-key":
+	case "apikey", "api_key", "api-key":
 		if len(os.Args) < 3 {
 			logger.Log(5, "You must provide an argument with the name of the framework to use")
 		}

@@ -22,8 +22,9 @@ func Gin(logger log.Logger) {
 	goauth.SetHandlers(h)
 
 	r := gin.Default()
-	r.Use(goauthgin.AuthenticateGin(nil))
+	r.Use(goauthgin.Authenticate())
 	r.GET("/ping", func(c *gin.Context) {
+		log.Log(0, "pong")
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
