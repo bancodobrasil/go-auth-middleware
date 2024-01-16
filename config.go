@@ -11,7 +11,6 @@ import (
 
 // APIKeyConfig is the config to be used on the VerifyAPIKey handler
 type APIKeyConfig struct {
-
 	// Header is the header to be used on the VerifyAPIKey handler. Defaults to X-API-Key
 	Header string `mapstructure:"GOAUTH_API_KEY_HEADER"`
 	// KeyList is the list of API keys to be used on the VerifyAPIKey handler, separated by comma
@@ -43,7 +42,7 @@ type JWTConfig struct {
 // Config stores the configuration for the Goauth middleware
 type Config struct {
 	// AuthHandlers is the list of authentication handlers to be used
-	Handlers string `mapstructure:"GOAUTH_HANDLERS"`
+	Handlers []string `mapstructure:"GOAUTH_HANDLERS"`
 
 	// APIKeyConfig stores the configuration for the VerifyAPIKey handler
 	APIKeyConfig APIKeyConfig `mapstructure:",squash"`
@@ -79,13 +78,12 @@ func loadConfig() {
 func BootstrapMiddleware() {
 	log.Log(0, "BootstrapMiddleware")
 	loadConfig()
-	if config.Handlers == "" {
+	if len(config.Handlers) == 0 {
 		return
 	}
 	log.Logf(1, "Handlers: %s", config.Handlers)
-	authHandlers := strings.Split(config.Handlers, ",")
 	handlers := []AuthHandler{}
-	for _, h := range authHandlers {
+	for _, h := range config.Handlers {
 		switch strings.ToLower(h) {
 		case "api_key":
 			if len(config.APIKeyConfig.KeyList) == 0 {
@@ -93,8 +91,7 @@ func BootstrapMiddleware() {
 			}
 			cfg := handler.VerifyAPIKeyConfig{
 				Header: config.APIKeyConfig.Header,
-				// TODO: support multiple keys
-				Key: config.APIKeyConfig.KeyList[0],
+				Keys:   config.APIKeyConfig.KeyList,
 			}
 			handlers = append(handlers, handler.NewVerifyAPIKey(cfg))
 			log.Log(1, "Using API Key authentication")

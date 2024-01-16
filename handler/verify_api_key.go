@@ -11,13 +11,13 @@ import (
 // VerifyAPIKeyConfig stores the configuration for the VerifyAPIKey handler
 type VerifyAPIKeyConfig struct {
 	Header string
-	Key    string
+	Keys   []string
 }
 
 // VerifyAPIKey stores the Header and the API key to be used for authentication
 type VerifyAPIKey struct {
 	header string
-	key    string
+	keys   []string
 }
 
 // NewVerifyAPIKey returns a new VerifyAPIKey instance
@@ -25,7 +25,7 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 	log.Logf(0, "NewVerifyAPIKey: %v", cfg)
 	return &VerifyAPIKey{
 		header: cfg.Header,
-		key:    cfg.Key,
+		keys:   cfg.Keys,
 	}
 
 }
@@ -38,11 +38,13 @@ func (a *VerifyAPIKey) Handle(r *http.Request) (request *http.Request, statusCod
 		return r, statusCode, err
 	}
 
-	if key != a.key {
-		return r, 401, errors.New("Unauthorized")
+	for _, k := range a.keys {
+		if key == k {
+			return r, 0, nil
+		}
 	}
 
-	return r, 0, nil
+	return r, 401, errors.New("Unauthorized")
 }
 
 func (a *VerifyAPIKey) extractKeyFromHeader(h *http.Header) (key string, statusCode int, err error) {
