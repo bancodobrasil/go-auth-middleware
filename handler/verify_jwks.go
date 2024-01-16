@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -27,6 +28,8 @@ type CacheConfig struct {
 // VerifyJWKSConfig stores the configuration for the VerifyJWKS handler
 type VerifyJWKSConfig struct {
 	CacheConfig
+	Header    string
+	TokenType string
 	// URL is the endpoint of the JWKS
 	URL string
 }
@@ -35,6 +38,8 @@ type VerifyJWKSConfig struct {
 // getting the signature key for JWT token verification
 // and the cache for the signature key
 type VerifyJWKS struct {
+	header            string
+	tokenType         string
 	url               string
 	ctx               context.Context
 	signatureKeyCache *jwk.Cache
@@ -44,6 +49,8 @@ type VerifyJWKS struct {
 func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
 	log.Log(0, "VerifyJWKS: NewVerifyJWKS")
 	VerifyJWKS := &VerifyJWKS{
+		header:            cfg.Header,
+		tokenType:         cfg.TokenType,
 		url:               cfg.URL,
 		ctx:               cfg.Context,
 		signatureKeyCache: jwk.NewCache(cfg.Context, jwk.WithRefreshWindow(cfg.RefreshWindow)),
@@ -97,16 +104,20 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 }
 
 func (m *VerifyJWKS) extractTokenFromHeader(h *http.Header) (string, int, error) {
-	authorizationHeader := h.Get("Authorization")
+	authorizationHeader := h.Get(m.header)
 	if authorizationHeader == "" {
-		return "", 401, errors.New("Missing Authorization Header")
+		return "", 401, errors.New(fmt.Sprintf("Missing %s Header", m.header))
+	}
+	if m.tokenType == "" {
+		return authorizationHeader, 0, nil
 	}
 	splitHeader := strings.Split(authorizationHeader, "Bearer")
 	if len(splitHeader) != 2 {
-		return "", 401, errors.New("Invalid Authorization Header")
+		return "", 401, errors.New(fmt.Sprintf("Invalid %s Header", m.header))
 	}
 	return strings.TrimSpace(splitHeader[1]), 0, nil
 }
+
 func (m *VerifyJWKS) getSignatureKey() (jwk.Key, int, error) {
 	keyset, err := m.signatureKeyCache.Get(m.ctx, m.url)
 	errorMsg := "Failed to fetch JWKS"

@@ -21,6 +21,8 @@ type APIKeyConfig struct {
 type JWKSConfig struct {
 	// Header is the header to be used on the VerifyJWKS handler. Defaults to Authorization
 	Header string `mapstructure:"GOAUTH_JWKS_HEADER"`
+	// TokenType is the token type to be used on the VerifyJWKS handler. Defaults to Bearer
+	TokenType string `mapstructure:"GOAUTH_JWKS_TOKEN_TYPE"`
 	// URL is the JWKS endpoint to be used on the VerifyJWKS handler
 	URL string `mapstructure:"GOAUTH_JWKS_URL"`
 	// RefreshWindow is the time window before checking if the JWKS cache needs to be refreshed, in seconds. Defaults to 60
@@ -66,6 +68,7 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_API_KEY_HEADER", "X-API-Key")
 	viper.SetDefault("GOAUTH_API_KEY_LIST", []string{})
 	viper.SetDefault("GOAUTH_JWKS_HEADER", "Authorization")
+	viper.SetDefault("GOAUTH_JWKS_TOKEN_TYPE", "Bearer")
 	viper.SetDefault("GOAUTH_JWKS_URL", "")
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
@@ -103,6 +106,8 @@ func BootstrapMiddleware() {
 				panic("GOAUTH_JWKS_URL is required when using the JWKS handler")
 			}
 			cfg := handler.VerifyJWKSConfig{
+				Header:      config.JWKSConfig.Header,
+				TokenType:   config.JWKSConfig.TokenType,
 				URL:         config.JWKSConfig.URL,
 				CacheConfig: handler.CacheConfig{RefreshWindow: time.Duration(config.JWKSConfig.RefreshWindow), MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval)},
 			}
