@@ -15,6 +15,8 @@ func Mux(logger log.Logger) {
 	log.SetLogger(logger)
 
 	cfg := handler.VerifyJWTConfig{
+		Header:       "Authorization",
+		TokenType:    "Bearer",
 		SignatureKey: "123456",
 	}
 	h := []goauth.AuthHandler{

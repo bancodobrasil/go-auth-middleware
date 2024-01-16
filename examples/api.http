@@ -1,0 +1,10 @@
+### Expected status 401 Unauthorized
+GET http://localhost:8080/ping
+
+### API Key in header
+GET http://localhost:8080/ping
+X-API-Key: 123
+
+### JWT in header (signed with HS256, secret: 123456)
+GET http://localhost:8080/ping
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.keH6T3x1z7mmhKL1T3r9sQdAxxdzB6siemGMr_6ZOwU

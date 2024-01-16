@@ -14,7 +14,7 @@ func Gin(logger log.Logger) {
 
 	cfg := handler.VerifyAPIKeyConfig{
 		Header: "X-API-Key",
-		Key:    "123456",
+		Keys:   []string{"123", "456"},
 	}
 	h := []goauth.AuthHandler{
 		handler.NewVerifyAPIKey(cfg),
