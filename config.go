@@ -33,6 +33,8 @@ type JWKSConfig struct {
 type JWTConfig struct {
 	// Header is the header to be used on the VerifyJWT handler. Defaults to Authorization
 	Header string `mapstructure:"GOAUTH_JWT_HEADER"`
+	// TokenType is the token type to be used on the VerifyJWT handler. Defaults to Bearer
+	TokenType string `mapstructure:"GOAUTH_JWT_TOKEN_TYPE"`
 	// SignatureKey is the signature key to be used on the VerifyJWT handler
 	SignatureKey string `mapstructure:"GOAUTH_JWT_SIGNATURE_KEY"`
 	// PayloadContextKey is the context key to store the JWT payload. Defaults to JWT_PAYLOAD
@@ -68,6 +70,7 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
 	viper.SetDefault("GOAUTH_JWT_HEADER", "Authorization")
+	viper.SetDefault("GOAUTH_JWT_TOKEN_TYPE", "Bearer")
 	viper.SetDefault("GOAUTH_JWT_SIGNATURE_KEY", "")
 	viper.SetDefault("GOAUTH_JWT_PAYLOAD_CONTEXT_KEY", "JWT_PAYLOAD")
 
@@ -110,7 +113,10 @@ func BootstrapMiddleware() {
 				panic("GOAUTH_JWT_SIGNATURE_KEY is required when using the JWT handler")
 			}
 			cfg := handler.VerifyJWTConfig{
-				SignatureKey: config.JWTConfig.SignatureKey,
+				Header:            config.JWTConfig.Header,
+				TokenType:         config.JWTConfig.TokenType,
+				SignatureKey:      config.JWTConfig.SignatureKey,
+				PayloadContextKey: handler.JWTPayloadContextKey(config.JWTConfig.PayloadContextKey),
 			}
 			handlers = append(handlers, handler.NewVerifyJWT(cfg))
 			log.Log(1, "Using JWT authentication")

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,12 +19,16 @@ type JWTPayloadContextKey string
 
 // VerifyJWTConfig stores the configuration for the VerifyJWT handler
 type VerifyJWTConfig struct {
+	Header            string
+	TokenType         string
 	SignatureKey      string
 	PayloadContextKey JWTPayloadContextKey
 }
 
 // VerifyJWT stores the JWKS signature key
 type VerifyJWT struct {
+	header            string
+	tokenType         string
 	signatureKey      jwk.Key
 	payloadContextKey JWTPayloadContextKey
 }
@@ -37,6 +42,7 @@ func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 		return nil
 	}
 	VerifyJWT := &VerifyJWT{
+		header:            cfg.Header,
 		signatureKey:      key,
 		payloadContextKey: cfg.PayloadContextKey,
 	}
@@ -77,13 +83,16 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 }
 
 func (m *VerifyJWT) extractTokenFromHeader(h *http.Header) (string, int, error) {
-	authorizationHeader := h.Get("Authorization")
+	authorizationHeader := h.Get(m.header)
 	if authorizationHeader == "" {
-		return "", 401, errors.New("Missing Authorization Header")
+		return "", 401, errors.New(fmt.Sprintf("Missing %s Header", m.header))
 	}
-	splitHeader := strings.Split(authorizationHeader, "Bearer")
+	if m.tokenType == "" {
+		return authorizationHeader, 0, nil
+	}
+	splitHeader := strings.Split(authorizationHeader, m.tokenType)
 	if len(splitHeader) != 2 {
-		return "", 401, errors.New("Invalid Authorization Header")
+		return "", 401, errors.New(fmt.Sprintf("Invalid %s Header", m.header))
 	}
 	return strings.TrimSpace(splitHeader[1]), 0, nil
 }
