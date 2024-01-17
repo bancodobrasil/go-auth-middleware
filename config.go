@@ -29,6 +29,8 @@ type JWKSConfig struct {
 	RefreshWindow int `mapstructure:"GOAUTH_JWKS_REFRESH_WINDOW"`
 	// MinRefreshInterval is the minimum interval between JWKS refreshes, in seconds. Defaults to 300
 	MinRefreshInterval int `mapstructure:"GOAUTH_JWKS_MIN_REFRESH_INTERVAL"`
+	// SignatureAlgorithm is the algorithm used to sign the JWT. Defaults to RS256
+	SignatureAlgorithm string `mapstructure:"GOAUTH_JWKS_SIGNATURE_ALGORITHM"`
 }
 
 // JWTConfig is the config to be used on the VerifyJWT handler
@@ -72,6 +74,7 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_JWKS_URL", "")
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
+	viper.SetDefault("GOAUTH_JWKS_SIGNATURE_ALGORITHM", "RS256")
 	viper.SetDefault("GOAUTH_JWT_HEADER", "Authorization")
 	viper.SetDefault("GOAUTH_JWT_TOKEN_TYPE", "Bearer")
 	viper.SetDefault("GOAUTH_JWT_SIGNATURE_KEY", "")
@@ -106,10 +109,11 @@ func BootstrapMiddleware() {
 				log.Log(log.Panic, "GOAUTH_JWKS_URL is required when using the JWKS handler")
 			}
 			cfg := handler.VerifyJWKSConfig{
-				Header:      config.JWKSConfig.Header,
-				TokenType:   config.JWKSConfig.TokenType,
-				URL:         config.JWKSConfig.URL,
-				CacheConfig: handler.CacheConfig{RefreshWindow: time.Duration(config.JWKSConfig.RefreshWindow), MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval)},
+				Header:             config.JWKSConfig.Header,
+				TokenType:          config.JWKSConfig.TokenType,
+				URL:                config.JWKSConfig.URL,
+				SignatureAlgorithm: config.JWKSConfig.SignatureAlgorithm,
+				CacheConfig:        handler.CacheConfig{RefreshWindow: time.Duration(config.JWKSConfig.RefreshWindow), MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval)},
 			}
 			handlers = append(handlers, handler.NewVerifyJWKS(cfg))
 			log.Log(log.Info, "Using JWKS authentication")

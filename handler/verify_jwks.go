@@ -32,6 +32,8 @@ type VerifyJWKSConfig struct {
 	TokenType string
 	// URL is the endpoint of the JWKS
 	URL string
+	// SignatureAlgorithm is the algorithm used to sign the JWT
+	SignatureAlgorithm string
 }
 
 // VerifyJWKS stores the JWKS endpoint to be used for
@@ -42,6 +44,7 @@ type VerifyJWKS struct {
 	tokenType         string
 	url               string
 	ctx               context.Context
+	signatureAlg      jwa.SignatureAlgorithm
 	signatureKeyCache *jwk.Cache
 }
 
@@ -53,6 +56,7 @@ func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
 		tokenType:         cfg.TokenType,
 		url:               cfg.URL,
 		ctx:               cfg.Context,
+		signatureAlg:      jwa.SignatureAlgorithm(cfg.SignatureAlgorithm),
 		signatureKeyCache: jwk.NewCache(cfg.Context, jwk.WithRefreshWindow(cfg.RefreshWindow)),
 	}
 
@@ -83,6 +87,7 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 
 	msg, internalErr := jws.Parse([]byte(token))
 	if internalErr != nil {
+		log.Log(log.Error, internalErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 
@@ -92,7 +97,7 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 		return r, statusCode, err
 	}
 
-	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.RS256, key))
+	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(m.signatureAlg, key))
 	if internalErr != nil {
 		return r, defaultStatusCode, invalidJWTError
 	}
@@ -132,23 +137,23 @@ func (m *VerifyJWKS) getSignatureKey(ctx context.Context) (jwk.Key, int, error) 
 	key, exists := keyset.Key(idx)
 
 	// TODO: Reimplement this logic to support other algorithms
-	if exists && key.Algorithm() != jwa.RS256 {
+	if exists && key.Algorithm() == m.signatureAlg {
+		return key, 0, nil
+	} else {
 		exists = false
 	}
 
 	for !exists {
 		idx++
 		key, exists = keyset.Key(idx)
-		if exists {
-			switch key.Algorithm() {
-			case jwa.RS256:
-				return key, 0, nil
-			}
+		if exists && key.Algorithm() == m.signatureAlg {
+			return key, 0, nil
 		}
 		if !keyset.Keys(ctx).Next(ctx) {
+			errorMsg := fmt.Sprintf("No valid JWK found for algorithm %s", m.signatureAlg)
 			return nil, 502, errors.New(errorMsg)
 		}
 	}
 
-	return key, 0, nil
+	return nil, 502, errors.New(errorMsg)
 }
