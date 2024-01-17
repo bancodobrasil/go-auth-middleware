@@ -19,10 +19,11 @@ type JWTPayloadContextKey string
 
 // VerifyJWTConfig stores the configuration for the VerifyJWT handler
 type VerifyJWTConfig struct {
-	Header            string
-	TokenType         string
-	SignatureKey      string
-	PayloadContextKey JWTPayloadContextKey
+	Header             string
+	TokenType          string
+	SignatureKey       string
+	SignatureAlgorithm string
+	PayloadContextKey  JWTPayloadContextKey
 }
 
 // VerifyJWT stores the JWKS signature key
@@ -30,6 +31,7 @@ type VerifyJWT struct {
 	header            string
 	tokenType         string
 	signatureKey      jwk.Key
+	signatureAlg      jwa.SignatureAlgorithm
 	payloadContextKey JWTPayloadContextKey
 }
 
@@ -43,6 +45,8 @@ func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 	}
 	VerifyJWT := &VerifyJWT{
 		header:            cfg.Header,
+		tokenType:         cfg.TokenType,
+		signatureAlg:      jwa.SignatureAlgorithm(cfg.SignatureAlgorithm),
 		signatureKey:      key,
 		payloadContextKey: cfg.PayloadContextKey,
 	}
@@ -67,7 +71,7 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.HS256, m.signatureKey))
+	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(m.signatureAlg, m.signatureKey))
 	if internalErr != nil {
 		log.Log(log.Error, internalErr)
 		return r, defaultStatusCode, invalidJWTError

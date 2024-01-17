@@ -11,9 +11,10 @@ import (
 // Mux runs the example using Gorilla Mux
 func Mux() {
 	cfg := handler.VerifyJWTConfig{
-		Header:       "Authorization",
-		TokenType:    "Bearer",
-		SignatureKey: "123456",
+		Header:             "Authorization",
+		TokenType:          "Bearer",
+		SignatureKey:       "123456",
+		SignatureAlgorithm: "HS256",
 	}
 	h := []goauth.AuthHandler{
 		handler.NewVerifyJWT(cfg),
