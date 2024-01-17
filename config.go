@@ -1,6 +1,7 @@
 package goauth
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -89,8 +90,10 @@ func loadConfig() {
 	viper.Unmarshal(config)
 }
 
-// BootstrapMiddleware sets up the authentication handlers
-func BootstrapMiddleware() {
+// BootstrapMiddleware sets up the authentication handlers.
+// The context object is used to controll the life-cycle
+// of the JWKS cache auto-refresh worker.
+func BootstrapMiddleware(ctx context.Context) {
 	log.Log(log.Debug, "BootstrapMiddleware")
 	loadConfig()
 	if len(config.Handlers) == 0 {
@@ -119,7 +122,11 @@ func BootstrapMiddleware() {
 				TokenType:          config.JWKSConfig.TokenType,
 				URL:                config.JWKSConfig.URL,
 				SignatureAlgorithm: config.JWKSConfig.SignatureAlgorithm,
-				CacheConfig:        handler.CacheConfig{RefreshWindow: time.Duration(config.JWKSConfig.RefreshWindow), MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval)},
+				CacheConfig: handler.CacheConfig{
+					RefreshWindow:      time.Duration(config.JWKSConfig.RefreshWindow),
+					MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval),
+					Context:            ctx,
+				},
 			}
 			handlers = append(handlers, handler.NewVerifyJWKS(cfg))
 			log.Log(log.Info, "Using JWKS authentication")
