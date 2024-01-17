@@ -86,8 +86,9 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	key, statusCode, err := m.getSignatureKey()
+	key, statusCode, err := m.getSignatureKey(m.ctx)
 	if err != nil {
+		log.Log(log.Error, err)
 		return r, statusCode, err
 	}
 
@@ -99,6 +100,7 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 	if !bytes.Equal(verified, msg.Payload()) {
 		return r, defaultStatusCode, invalidJWTError
 	}
+	// log.Log(log.Debug, "VerifyJWKS: msg.Payload(): ", string(msg.Payload()))
 
 	return r, 0, nil
 }
@@ -118,17 +120,35 @@ func (m *VerifyJWKS) extractTokenFromHeader(h *http.Header) (string, int, error)
 	return strings.TrimSpace(splitHeader[1]), 0, nil
 }
 
-func (m *VerifyJWKS) getSignatureKey() (jwk.Key, int, error) {
+func (m *VerifyJWKS) getSignatureKey(ctx context.Context) (jwk.Key, int, error) {
 	keyset, err := m.signatureKeyCache.Get(m.ctx, m.url)
 	errorMsg := "Failed to fetch JWKS"
 	if err != nil {
 		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
 		return nil, 502, errors.New(errorMsg)
 	}
-	key, exists := keyset.Key(0)
-	if !exists {
-		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
-		return nil, 502, errors.New(errorMsg)
+
+	idx := 0
+	key, exists := keyset.Key(idx)
+
+	// TODO: Reimplement this logic to support other algorithms
+	if exists && key.Algorithm() != jwa.RS256 {
+		exists = false
 	}
+
+	for !exists {
+		idx++
+		key, exists = keyset.Key(idx)
+		if exists {
+			switch key.Algorithm() {
+			case jwa.RS256:
+				return key, 0, nil
+			}
+		}
+		if !keyset.Keys(ctx).Next(ctx) {
+			return nil, 502, errors.New(errorMsg)
+		}
+	}
+
 	return key, 0, nil
 }
