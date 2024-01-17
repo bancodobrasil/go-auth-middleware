@@ -5,14 +5,11 @@ import (
 
 	"github.com/bancodobrasil/goauth"
 	"github.com/bancodobrasil/goauth/handler"
-	"github.com/bancodobrasil/goauth/log"
 	"github.com/gorilla/mux"
 )
 
 // Mux runs the example using Gorilla Mux
-func Mux(logger log.Logger) {
-	log.SetLogger(logger)
-
+func Mux() {
 	cfg := handler.VerifyAPIKeyConfig{
 		Header: "X-API-Key",
 		Keys:   []string{"123", "456"},

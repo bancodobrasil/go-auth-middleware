@@ -35,10 +35,10 @@ type VerifyJWT struct {
 
 // NewVerifyJWT returns a new VerifyJWT instance
 func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
-	log.Log(0, "VerifyJWT: NewVerifyJWT")
+	log.Log(log.Debug, "VerifyJWT: NewVerifyJWT")
 	key, err := jwk.FromRaw([]byte(cfg.SignatureKey))
 	if err != nil {
-		log.Log(5, err)
+		log.Log(log.Panic, err)
 		return nil
 	}
 	VerifyJWT := &VerifyJWT{
@@ -52,7 +52,7 @@ func NewVerifyJWT(cfg VerifyJWTConfig) *VerifyJWT {
 
 // Handle runs the VerifyJWT authentication handler
 func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
-	log.Log(0, "VerifyJWT: Handle")
+	log.Log(log.Debug, "VerifyJWT: Handle")
 	token, statusCode, err := m.extractTokenFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err
@@ -63,13 +63,13 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 
 	msg, internalErr := jws.Parse([]byte(token))
 	if internalErr != nil {
-		log.Log(3, internalErr)
+		log.Log(log.Error, internalErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 
 	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(jwa.HS256, m.signatureKey))
 	if internalErr != nil {
-		log.Log(3, internalErr)
+		log.Log(log.Error, internalErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 

@@ -82,28 +82,28 @@ func loadConfig() {
 
 // BootstrapMiddleware sets up the authentication handlers
 func BootstrapMiddleware() {
-	log.Log(0, "BootstrapMiddleware")
+	log.Log(log.Debug, "BootstrapMiddleware")
 	loadConfig()
 	if len(config.Handlers) == 0 {
 		return
 	}
-	log.Logf(1, "Handlers: %s", config.Handlers)
+	log.Logf(log.Info, "Handlers: %s", config.Handlers)
 	handlers := []AuthHandler{}
 	for _, h := range config.Handlers {
 		switch strings.ToLower(h) {
 		case "api_key":
 			if len(config.APIKeyConfig.KeyList) == 0 {
-				panic("GOAUTH_API_KEY_LIST is required when using the API Key handler")
+				log.Log(log.Panic, "GOAUTH_API_KEY_LIST is required when using the API Key handler")
 			}
 			cfg := handler.VerifyAPIKeyConfig{
 				Header: config.APIKeyConfig.Header,
 				Keys:   config.APIKeyConfig.KeyList,
 			}
 			handlers = append(handlers, handler.NewVerifyAPIKey(cfg))
-			log.Log(1, "Using API Key authentication")
+			log.Log(log.Info, "Using API Key authentication")
 		case "jwks":
 			if config.JWKSConfig.URL == "" {
-				panic("GOAUTH_JWKS_URL is required when using the JWKS handler")
+				log.Log(log.Panic, "GOAUTH_JWKS_URL is required when using the JWKS handler")
 			}
 			cfg := handler.VerifyJWKSConfig{
 				Header:      config.JWKSConfig.Header,
@@ -112,10 +112,10 @@ func BootstrapMiddleware() {
 				CacheConfig: handler.CacheConfig{RefreshWindow: time.Duration(config.JWKSConfig.RefreshWindow), MinRefreshInterval: time.Duration(config.JWKSConfig.MinRefreshInterval)},
 			}
 			handlers = append(handlers, handler.NewVerifyJWKS(cfg))
-			log.Log(1, "Using JWKS authentication")
+			log.Log(log.Info, "Using JWKS authentication")
 		case "jwt":
 			if config.JWTConfig.SignatureKey == "" {
-				panic("GOAUTH_JWT_SIGNATURE_KEY is required when using the JWT handler")
+				log.Log(log.Panic, "GOAUTH_JWT_SIGNATURE_KEY is required when using the JWT handler")
 			}
 			cfg := handler.VerifyJWTConfig{
 				Header:            config.JWTConfig.Header,
@@ -124,7 +124,7 @@ func BootstrapMiddleware() {
 				PayloadContextKey: handler.JWTPayloadContextKey(config.JWTConfig.PayloadContextKey),
 			}
 			handlers = append(handlers, handler.NewVerifyJWT(cfg))
-			log.Log(1, "Using JWT authentication")
+			log.Log(log.Info, "Using JWT authentication")
 		}
 	}
 	SetHandlers(handlers)

@@ -1,21 +1,35 @@
 package log
 
-// Level is the log level
-// You can use the following levels in your implementation:
+import (
+	"fmt"
+	"strings"
+)
+
+// LogLevel is the log LogLevel
+type LogLevel uint8
+
+// You can use the following LogLevels in your implementation:
 // 0: Debug
 // 1: Info
 // 2: Warn
 // 3: Error
 // 4: Fatal
 // 5: Panic
-type Level int
+const (
+	Debug LogLevel = iota
+	Info
+	Warn
+	Error
+	Fatal
+	Panic
+)
 
 // Logger is the interface that wraps the Log and Logf methods.
 type Logger interface {
-	// Log logs a message at the given level. Arguments are handled in the manner of fmt.Print.
-	Log(level Level, args ...interface{})
-	// Logf logs a message at the given level. Arguments are handled in the manner of fmt.Printf.
-	Logf(level Level, format string, args ...interface{})
+	// Log logs a message at the given LogLevel. Arguments are handled in the manner of fmt.Print.
+	Log(logLevel LogLevel, args ...any)
+	// Logf logs a message at the given LogLevel. Arguments are handled in the manner of fmt.Printf.
+	Logf(logLevel LogLevel, format string, args ...any)
 }
 
 var logger Logger
@@ -26,15 +40,35 @@ func SetLogger(l Logger) {
 }
 
 // Log is called internally by the library to log messages
-func Log(level Level, args ...interface{}) {
+func Log(logLevel LogLevel, args ...any) {
 	if logger != nil {
-		logger.Log(level, args...)
+		logger.Log(logLevel, args...)
 	}
 }
 
 // Logf is called internally by the library to log messages
-func Logf(level Level, format string, args ...interface{}) {
+func Logf(logLevel LogLevel, format string, args ...any) {
 	if logger != nil {
-		logger.Logf(level, format, args...)
+		logger.Logf(logLevel, format, args...)
+	}
+}
+
+// ParseLogLevel parses a string into a LogLevel
+func ParseLogLevel(logLevel string) (LogLevel, error) {
+	switch strings.TrimSpace(strings.ToLower(logLevel)) {
+	case "debug":
+		return Debug, nil
+	case "info":
+		return Info, nil
+	case "warn":
+		return Warn, nil
+	case "error":
+		return Error, nil
+	case "fatal":
+		return Fatal, nil
+	case "panic":
+		return Panic, nil
+	default:
+		return Debug, fmt.Errorf("Invalid log level: %s", logLevel)
 	}
 }

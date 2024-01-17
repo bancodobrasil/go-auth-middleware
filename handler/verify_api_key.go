@@ -22,7 +22,7 @@ type VerifyAPIKey struct {
 
 // NewVerifyAPIKey returns a new VerifyAPIKey instance
 func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
-	log.Logf(0, "NewVerifyAPIKey: %v", cfg)
+	log.Logf(log.Debug, "NewVerifyAPIKey: %v", cfg)
 	return &VerifyAPIKey{
 		header: cfg.Header,
 		keys:   cfg.Keys,
@@ -32,7 +32,7 @@ func NewVerifyAPIKey(cfg VerifyAPIKeyConfig) *VerifyAPIKey {
 
 // Handle runs the VerifyAPIKey authentication handler
 func (a *VerifyAPIKey) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
-	log.Log(0, "VerifyAPIKey: Handle")
+	log.Log(log.Debug, "VerifyAPIKey: Handle")
 	key, statusCode, err := a.extractKeyFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err

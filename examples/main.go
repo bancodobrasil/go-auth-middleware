@@ -5,41 +5,43 @@ import (
 
 	"github.com/bancodobrasil/goauth/examples/apikey"
 	"github.com/bancodobrasil/goauth/examples/jwt"
+	"github.com/bancodobrasil/goauth/log"
 )
 
 func main() {
-	logger := &Logger{}
+	logger := NewLogger(log.Debug)
+	log.SetLogger(logger)
 
 	if len(os.Args) < 2 {
-		logger.Log(5, "You must provide an argument with the example to run")
+		logger.Log(log.Panic, "You must provide an argument with the example to run")
 	}
 
 	switch os.Args[1] {
 	case "apikey", "api_key", "api-key":
 		if len(os.Args) < 3 {
-			logger.Log(5, "You must provide an argument with the name of the framework to use")
+			logger.Log(log.Panic, "You must provide an argument with the name of the framework to use")
 		}
 		switch os.Args[2] {
 		case "gin":
-			apikey.Gin(logger)
+			apikey.Gin()
 			break
 		case "mux":
-			apikey.Mux(logger)
+			apikey.Mux()
 			break
 		default:
-			logger.Log(5, "Invalid framework name")
+			log.Log(log.Panic, "Invalid framework name")
 		}
 		break
 	case "jwt":
 		if len(os.Args) < 3 {
-			logger.Log(5, "You must provide an argument with the name of the framework to use")
+			log.Log(log.Panic, "You must provide an argument with the name of the framework to use")
 		}
 		switch os.Args[2] {
 		case "mux":
-			jwt.Mux(logger)
+			jwt.Mux()
 			break
 		}
 	default:
-		logger.Log(5, "Invalid example name")
+		logger.Log(log.Panic, "Invalid example name")
 	}
 }

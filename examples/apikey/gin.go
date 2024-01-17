@@ -9,9 +9,7 @@ import (
 )
 
 // Gin runs the example using Gin
-func Gin(logger log.Logger) {
-	log.SetLogger(logger)
-
+func Gin() {
 	cfg := handler.VerifyAPIKeyConfig{
 		Header: "X-API-Key",
 		Keys:   []string{"123", "456"},
@@ -24,7 +22,7 @@ func Gin(logger log.Logger) {
 	r := gin.Default()
 	r.Use(goauthgin.Authenticate())
 	r.GET("/ping", func(c *gin.Context) {
-		log.Log(0, "pong")
+		log.Log(log.Debug, "pong")
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})

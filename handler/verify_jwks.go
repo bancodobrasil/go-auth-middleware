@@ -47,7 +47,7 @@ type VerifyJWKS struct {
 
 // NewVerifyJWKS returns a new VerifyJWKS instance
 func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
-	log.Log(0, "VerifyJWKS: NewVerifyJWKS")
+	log.Log(log.Debug, "VerifyJWKS: NewVerifyJWKS")
 	VerifyJWKS := &VerifyJWKS{
 		header:            cfg.Header,
 		tokenType:         cfg.TokenType,
@@ -66,13 +66,13 @@ func (m *VerifyJWKS) setup(cfg VerifyJWKSConfig) {
 	m.signatureKeyCache.Register(m.url, jwk.WithMinRefreshInterval(cfg.MinRefreshInterval))
 	_, err := m.signatureKeyCache.Refresh(m.ctx, m.url)
 	if err != nil {
-		log.Logf(5, "Failed to refresh JWKS: %s\n", err)
+		log.Logf(log.Panic, "Failed to refresh JWKS: %s\n", err)
 	}
 }
 
 // Handle runs the VerifyJWKS authentication handler
 func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode int, err error) {
-	log.Log(0, "VerifyJWKS: Handle")
+	log.Log(log.Debug, "VerifyJWKS: Handle")
 	token, statusCode, err := m.extractTokenFromHeader(&r.Header)
 	if err != nil {
 		return r, statusCode, err
@@ -122,12 +122,12 @@ func (m *VerifyJWKS) getSignatureKey() (jwk.Key, int, error) {
 	keyset, err := m.signatureKeyCache.Get(m.ctx, m.url)
 	errorMsg := "Failed to fetch JWKS"
 	if err != nil {
-		log.Logf(3, "%s: %s\n", errorMsg, err)
+		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
 		return nil, 502, errors.New(errorMsg)
 	}
 	key, exists := keyset.Key(0)
 	if !exists {
-		log.Logf(3, "%s: %s\n", errorMsg, err)
+		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
 		return nil, 502, errors.New(errorMsg)
 	}
 	return key, 0, nil
