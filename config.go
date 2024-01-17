@@ -64,7 +64,7 @@ var config = &Config{}
 func loadConfig() {
 	viper.AutomaticEnv()
 
-	viper.SetDefault("GOAUTH_HANDLERS", "")
+	viper.SetDefault("GOAUTH_HANDLERS", []string{})
 	viper.SetDefault("GOAUTH_API_KEY_HEADER", "X-API-Key")
 	viper.SetDefault("GOAUTH_API_KEY_LIST", []string{})
 	viper.SetDefault("GOAUTH_JWKS_HEADER", "Authorization")
