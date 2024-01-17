@@ -12,6 +12,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 // VerifyJWTConfig stores the configuration for the VerifyJWT handler
@@ -75,6 +76,12 @@ func (m *VerifyJWT) Handle(r *http.Request) (request *http.Request, statusCode i
 	}
 
 	if !bytes.Equal(verified, msg.Payload()) {
+		return r, defaultStatusCode, invalidJWTError
+	}
+
+	_, parseErr := jwt.Parse(msg.Payload(), jwt.WithVerify(false))
+	if parseErr != nil {
+		log.Log(log.Error, parseErr)
 		return r, defaultStatusCode, invalidJWTError
 	}
 

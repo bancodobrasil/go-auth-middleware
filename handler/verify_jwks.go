@@ -13,6 +13,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 // CacheConfig stores the configuration for the JWKS cache
@@ -110,10 +111,13 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	log.Log(log.Debug, "claims: ", string(msg.Payload()))
-	log.Log(log.Debug, "ctx: ", m.payloadContextKey)
-	c := context.WithValue(r.Context(), m.payloadContextKey, string(msg.Payload()))
+	_, parseErr := jwt.Parse(msg.Payload(), jwt.WithVerify(false))
+	if parseErr != nil {
+		log.Log(log.Error, parseErr)
+		return r, defaultStatusCode, invalidJWTError
+	}
 
+	c := context.WithValue(r.Context(), m.payloadContextKey, string(msg.Payload()))
 	return r.WithContext(c), 0, nil
 }
 
