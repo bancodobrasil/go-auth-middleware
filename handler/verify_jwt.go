@@ -14,16 +14,13 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
-// JWTPayloadContextKey is the context key to store the JWT payload
-type JWTPayloadContextKey string
-
 // VerifyJWTConfig stores the configuration for the VerifyJWT handler
 type VerifyJWTConfig struct {
 	Header             string
 	TokenType          string
 	SignatureKey       string
 	SignatureAlgorithm string
-	PayloadContextKey  JWTPayloadContextKey
+	PayloadContextKey  string
 }
 
 // VerifyJWT stores the JWKS signature key
@@ -32,7 +29,7 @@ type VerifyJWT struct {
 	tokenType         string
 	signatureKey      jwk.Key
 	signatureAlg      jwa.SignatureAlgorithm
-	payloadContextKey JWTPayloadContextKey
+	payloadContextKey string
 }
 
 // NewVerifyJWT returns a new VerifyJWT instance

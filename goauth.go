@@ -48,7 +48,7 @@ func Authenticate(next http.Handler) http.Handler {
 		for _, handler := range h {
 			request, statusCode, err = handler.Handle(r)
 			if err == nil {
-				return
+				break
 			}
 		}
 

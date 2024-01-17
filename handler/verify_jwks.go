@@ -34,6 +34,8 @@ type VerifyJWKSConfig struct {
 	URL string
 	// SignatureAlgorithm is the algorithm used to sign the JWT
 	SignatureAlgorithm string
+	// PayloadContextKey is the context key to store the JWT payload
+	PayloadContextKey string
 }
 
 // VerifyJWKS stores the JWKS endpoint to be used for
@@ -46,6 +48,7 @@ type VerifyJWKS struct {
 	ctx               context.Context
 	signatureAlg      jwa.SignatureAlgorithm
 	signatureKeyCache *jwk.Cache
+	payloadContextKey string
 }
 
 // NewVerifyJWKS returns a new VerifyJWKS instance
@@ -58,6 +61,7 @@ func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
 		ctx:               cfg.Context,
 		signatureAlg:      jwa.SignatureAlgorithm(cfg.SignatureAlgorithm),
 		signatureKeyCache: jwk.NewCache(cfg.Context, jwk.WithRefreshWindow(cfg.RefreshWindow)),
+		payloadContextKey: cfg.PayloadContextKey,
 	}
 
 	VerifyJWKS.setup(cfg)
@@ -105,9 +109,12 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 	if !bytes.Equal(verified, msg.Payload()) {
 		return r, defaultStatusCode, invalidJWTError
 	}
-	// log.Log(log.Debug, "VerifyJWKS: msg.Payload(): ", string(msg.Payload()))
 
-	return r, 0, nil
+	log.Log(log.Debug, "claims: ", string(msg.Payload()))
+	log.Log(log.Debug, "ctx: ", m.payloadContextKey)
+	c := context.WithValue(r.Context(), m.payloadContextKey, string(msg.Payload()))
+
+	return r.WithContext(c), 0, nil
 }
 
 func (m *VerifyJWKS) extractTokenFromHeader(h *http.Header) (string, int, error) {

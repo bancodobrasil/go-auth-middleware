@@ -31,6 +31,8 @@ type JWKSConfig struct {
 	MinRefreshInterval int `mapstructure:"GOAUTH_JWKS_MIN_REFRESH_INTERVAL"`
 	// SignatureAlgorithm is the algorithm used to sign the JWT. Defaults to RS256
 	SignatureAlgorithm string `mapstructure:"GOAUTH_JWKS_SIGNATURE_ALGORITHM"`
+	// PayloadContextKey is the context key to store the JWT payload. Defaults to USER
+	PayloadContextKey string `mapstructure:"GOAUTH_JWKS_PAYLOAD_CONTEXT_KEY"`
 }
 
 // JWTConfig is the config to be used on the VerifyJWT handler
@@ -43,7 +45,7 @@ type JWTConfig struct {
 	SignatureKey string `mapstructure:"GOAUTH_JWT_SIGNATURE_KEY"`
 	// SignatureAlgorithm is the algorithm used to sign the JWT. Defaults to RS256
 	SignatureAlgorithm string `mapstructure:"GOAUTH_JWT_SIGNATURE_ALGORITHM"`
-	// PayloadContextKey is the context key to store the JWT payload. Defaults to JWT_PAYLOAD
+	// PayloadContextKey is the context key to store the JWT payload. Defaults to USER
 	PayloadContextKey string `mapstructure:"GOAUTH_JWT_PAYLOAD_CONTEXT_KEY"`
 }
 
@@ -77,11 +79,12 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_SIGNATURE_ALGORITHM", "RS256")
+	viper.SetDefault("GOAUTH_JWKS_PAYLOAD_CONTEXT_KEY", "USER")
 	viper.SetDefault("GOAUTH_JWT_HEADER", "Authorization")
 	viper.SetDefault("GOAUTH_JWT_TOKEN_TYPE", "Bearer")
 	viper.SetDefault("GOAUTH_JWT_SIGNATURE_KEY", "")
 	viper.SetDefault("GOAUTH_JWT_SIGNATURE_ALGORITHM", "RS256")
-	viper.SetDefault("GOAUTH_JWT_PAYLOAD_CONTEXT_KEY", "JWT_PAYLOAD")
+	viper.SetDefault("GOAUTH_JWT_PAYLOAD_CONTEXT_KEY", "USER")
 
 	viper.Unmarshal(config)
 }
@@ -129,7 +132,7 @@ func BootstrapMiddleware() {
 				TokenType:          config.JWTConfig.TokenType,
 				SignatureKey:       config.JWTConfig.SignatureKey,
 				SignatureAlgorithm: config.JWTConfig.SignatureAlgorithm,
-				PayloadContextKey:  handler.JWTPayloadContextKey(config.JWTConfig.PayloadContextKey),
+				PayloadContextKey:  config.JWTConfig.PayloadContextKey,
 			}
 			handlers = append(handlers, handler.NewVerifyJWT(cfg))
 			log.Log(log.Info, "Using JWT authentication")

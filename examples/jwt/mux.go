@@ -5,6 +5,7 @@ import (
 
 	"github.com/bancodobrasil/goauth"
 	"github.com/bancodobrasil/goauth/handler"
+	"github.com/bancodobrasil/goauth/log"
 	"github.com/gorilla/mux"
 )
 
@@ -15,6 +16,7 @@ func Mux() {
 		TokenType:          "Bearer",
 		SignatureKey:       "123456",
 		SignatureAlgorithm: "HS256",
+		PayloadContextKey:  "USER",
 	}
 	h := []goauth.AuthHandler{
 		handler.NewVerifyJWT(cfg),
@@ -24,9 +26,11 @@ func Mux() {
 	r := mux.NewRouter()
 	r.Use(goauth.Authenticate)
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value("USER")
+		log.Log(log.Info, user)
 		w.Write([]byte("pong"))
 	})
-	err := http.ListenAndServe(":8080", r)
+	err := http.ListenAndServe(":8081", r)
 	if err != nil {
 		panic(err)
 	}
