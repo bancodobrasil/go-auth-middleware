@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bancodobrasil/goauth/log"
+	"github.com/bancodobrasil/goauth/pkg/jwks"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
@@ -96,26 +96,11 @@ func (m *VerifyJWKS) Handle(r *http.Request) (request *http.Request, statusCode 
 		return r, defaultStatusCode, invalidJWTError
 	}
 
-	key, statusCode, err := m.getSignatureKey(m.ctx)
-	if err != nil {
-		log.Log(log.Error, err)
-		return r, statusCode, err
+	keyHandler := &jwks.KeyHandler{
+		Fetcher: m.getSignatureKey,
 	}
 
-	verified, internalErr := jws.Verify([]byte(token), jws.WithKey(m.signatureAlg, key))
-	if internalErr != nil {
-		return r, defaultStatusCode, invalidJWTError
-	}
-
-	if !bytes.Equal(verified, msg.Payload()) {
-		return r, defaultStatusCode, invalidJWTError
-	}
-
-	_, parseErr := jwt.Parse(msg.Payload(), jwt.WithVerify(false))
-	if parseErr != nil {
-		log.Log(log.Error, parseErr)
-		return r, defaultStatusCode, invalidJWTError
-	}
+	_, internalErr = jwt.Parse(msg.Payload(), jwt.WithKeyProvider(keyHandler), jwt.WithContext(m.ctx))
 
 	c := context.WithValue(r.Context(), m.payloadContextKey, string(msg.Payload()))
 	return r.WithContext(c), 0, nil
@@ -136,35 +121,19 @@ func (m *VerifyJWKS) extractTokenFromHeader(h *http.Header) (string, int, error)
 	return strings.TrimSpace(splitHeader[1]), 0, nil
 }
 
-func (m *VerifyJWKS) getSignatureKey(ctx context.Context) (jwk.Key, int, error) {
+func (m *VerifyJWKS) getSignatureKey(ctx context.Context, keyID string) (jwk.Key, error) {
 	keyset, err := m.signatureKeyCache.Get(m.ctx, m.url)
 	errorMsg := "Failed to fetch JWKS"
 	if err != nil {
 		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
-		return nil, 502, errors.New(errorMsg)
+		return nil, errors.New(errorMsg)
 	}
 
-	idx := 0
-	key, exists := keyset.Key(idx)
-
-	// TODO: Reimplement this logic to support other algorithms
-	if exists && key.Algorithm() == m.signatureAlg {
-		return key, 0, nil
-	} else {
-		exists = false
+	key, ok := keyset.LookupKeyID(keyID)
+	if !ok {
+		log.Logf(log.Error, "%s: %s\n", errorMsg, err)
+		return nil, errors.New(errorMsg)
 	}
 
-	for !exists {
-		idx++
-		key, exists = keyset.Key(idx)
-		if exists && key.Algorithm() == m.signatureAlg {
-			return key, 0, nil
-		}
-		if !keyset.Keys(ctx).Next(ctx) {
-			errorMsg := fmt.Sprintf("No valid JWK found for algorithm %s", m.signatureAlg)
-			return nil, 502, errors.New(errorMsg)
-		}
-	}
-
-	return nil, 502, errors.New(errorMsg)
+	return key, nil
 }
