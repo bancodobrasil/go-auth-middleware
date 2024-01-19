@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	logger := NewLogger(log.Debug)
+	logger := log.NewDefaultLogger(log.Debug)
 	log.SetLogger(logger)
 
 	if len(os.Args) < 2 {

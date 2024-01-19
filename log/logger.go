@@ -1,44 +1,42 @@
-package main
+package log
 
 import (
 	"fmt"
 	"os"
-
-	"github.com/bancodobrasil/goauth/log"
 )
 
 // Logger is a simple logger that prints to stdout
-type Logger struct {
-	LogLevel log.LogLevel
+type DefaultLogger struct {
+	LogLevel LogLevel
 }
 
-func NewLogger(logLevel log.LogLevel) *Logger {
-	if logLevel < log.Debug {
-		logLevel = log.Debug
-	} else if logLevel > log.Panic {
-		logLevel = log.Panic
+func NewDefaultLogger(logLevel LogLevel) *DefaultLogger {
+	if logLevel < Debug {
+		logLevel = Debug
+	} else if logLevel > Panic {
+		logLevel = Panic
 	}
-	return &Logger{logLevel}
+	return &DefaultLogger{logLevel}
 }
 
 // Log prints a line to stdout
-func (l *Logger) Log(level log.LogLevel, args ...any) {
+func (l *DefaultLogger) Log(level LogLevel, args ...any) {
 	if level < l.LogLevel {
 		return
 	}
 	switch level {
-	case log.Debug:
+	case Debug:
 		fmt.Println("DEBUG:", fmt.Sprint(args...))
-	case log.Info:
+	case Info:
 		fmt.Println("INFO:", fmt.Sprint(args...))
-	case log.Warn:
+	case Warn:
 		fmt.Println("WARN:", fmt.Sprint(args...))
-	case log.Error:
+	case Error:
 		fmt.Println("ERROR:", fmt.Sprint(args...))
-	case log.Fatal:
+	case Fatal:
 		fmt.Println("FATAL:", fmt.Sprint(args...))
 		os.Exit(1)
-	case log.Panic:
+	case Panic:
 		panic(fmt.Sprint(args...))
 	default:
 		fmt.Println(args...)
@@ -46,23 +44,23 @@ func (l *Logger) Log(level log.LogLevel, args ...any) {
 }
 
 // Logf prints a formatted line to stdout
-func (l *Logger) Logf(level log.LogLevel, format string, args ...any) {
+func (l *DefaultLogger) Logf(level LogLevel, format string, args ...any) {
 	if level < l.LogLevel {
 		return
 	}
 	switch level {
-	case log.Debug:
+	case Debug:
 		fmt.Printf("DEBUG: "+format, args...)
-	case log.Info:
+	case Info:
 		fmt.Printf("INFO: "+format, args...)
-	case log.Warn:
+	case Warn:
 		fmt.Printf("WARN: "+format, args...)
-	case log.Error:
+	case Error:
 		fmt.Printf("ERROR: "+format, args...)
-	case log.Fatal:
+	case Fatal:
 		fmt.Printf("FATAL: "+format, args...)
 		os.Exit(1)
-	case log.Panic:
+	case Panic:
 		panic(fmt.Sprintf(format, args...))
 	default:
 		fmt.Printf(format, args...)
