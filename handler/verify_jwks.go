@@ -10,7 +10,6 @@ import (
 
 	"github.com/bancodobrasil/goauth/log"
 	"github.com/bancodobrasil/goauth/pkg/jwks"
-	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -33,8 +32,6 @@ type VerifyJWKSConfig struct {
 	TokenType string
 	// URL is the endpoint of the JWKS
 	URL string
-	// SignatureAlgorithm is the algorithm used to sign the JWT
-	SignatureAlgorithm string
 	// PayloadContextKey is the context key to store the JWT payload
 	PayloadContextKey string
 }
@@ -47,7 +44,6 @@ type VerifyJWKS struct {
 	tokenType         string
 	url               string
 	ctx               context.Context
-	signatureAlg      jwa.SignatureAlgorithm
 	signatureKeyCache *jwk.Cache
 	payloadContextKey string
 }
@@ -60,7 +56,6 @@ func NewVerifyJWKS(cfg VerifyJWKSConfig) *VerifyJWKS {
 		tokenType:         cfg.TokenType,
 		url:               cfg.URL,
 		ctx:               cfg.Context,
-		signatureAlg:      jwa.SignatureAlgorithm(cfg.SignatureAlgorithm),
 		signatureKeyCache: jwk.NewCache(cfg.Context, jwk.WithRefreshWindow(cfg.RefreshWindow)),
 		payloadContextKey: cfg.PayloadContextKey,
 	}
