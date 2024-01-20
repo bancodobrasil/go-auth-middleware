@@ -77,7 +77,6 @@ func loadConfig() {
 	viper.SetDefault("GOAUTH_JWKS_URL", "")
 	viper.SetDefault("GOAUTH_JWKS_REFRESH_WINDOW", 1*time.Minute)
 	viper.SetDefault("GOAUTH_JWKS_MIN_REFRESH_INTERVAL", 5*time.Minute)
-	viper.SetDefault("GOAUTH_JWKS_SIGNATURE_ALGORITHM", "RS256")
 	viper.SetDefault("GOAUTH_JWKS_PAYLOAD_CONTEXT_KEY", "USER")
 	viper.SetDefault("GOAUTH_JWT_HEADER", "Authorization")
 	viper.SetDefault("GOAUTH_JWT_TOKEN_TYPE", "Bearer")
